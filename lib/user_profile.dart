@@ -109,7 +109,7 @@ class UserProfile extends StatelessWidget {
                               style: const TextStyle(
                                 color: Colors.black,
                                 fontStyle: FontStyle.normal,
-                                fontSize: 24,
+                                fontSize: 20,
                               )),
                         ],
                       ),
