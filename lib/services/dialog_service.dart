@@ -37,7 +37,11 @@ Future<void> showLogoutConfirmationDialog(BuildContext context) async {
             onPressed: () async{
               // Navigator.pushReplacementNamed(context, '/login');
                 await context.read<AuthServiceProvider>().signOut();
-                Navigator.of(context).pop();
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login', // Replace this with your login route name
+                      (route) => false, // Remove all routes
+                );
+                // Navigator.of(context).pop();
               },
           ),
         ],

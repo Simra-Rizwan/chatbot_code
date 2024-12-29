@@ -1,5 +1,6 @@
 import 'package:custfyp/providers/auth_service_provider.dart';
 import 'package:custfyp/signup_screen.dart';
+import 'package:custfyp/welcome_screen.dart';
 import 'package:custfyp/widgets/auth_text_field.dart';
 import 'package:custfyp/widgets/password_text_field.dart';
 import 'package:custfyp/widgets/unfocus_keyboard.dart';
@@ -385,6 +386,10 @@ class _LoginScreenState extends State<LoginScreen> {
             password: _passwordController.text,
             context: context,
           );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => WelcomeScreen()), // Replace 'WelcomeScreen' with your actual welcome screen widget
+      );
     }
   }
 }

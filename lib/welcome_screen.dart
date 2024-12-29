@@ -55,29 +55,32 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Welcome',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.only(top: 50.0), // Add top padding here
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Welcome',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Image.asset(
-                      'assets/images/crown_image.png', // Use your crown image here
-                      height: 40,
-                      width: 40,
-                    ),
-                  ],
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Image.asset(
+                        'assets/images/crown_image.png', // Use your crown image here
+                        height: 40,
+                        width: 40,
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(
-                  height: 20,
+                  height: 5,
                 ),
                 ListView.separated(
                   shrinkWrap: true,
