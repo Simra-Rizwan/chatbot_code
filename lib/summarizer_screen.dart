@@ -10,25 +10,26 @@ import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-class ChatBotScreen extends StatefulWidget {
-  const ChatBotScreen({super.key});
+class SummarizerScreen extends StatefulWidget {
+  const SummarizerScreen({super.key});
 
   @override
-  _ChatBotScreenState createState() => _ChatBotScreenState();
+  _SummarizerScreenState createState() => _SummarizerScreenState();
 }
 
-class _ChatBotScreenState extends State<ChatBotScreen> {
+class _SummarizerScreenState extends State<SummarizerScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final TextEditingController _controller = TextEditingController();
   final ImagePicker _picker = ImagePicker();
 
   String selectedModel = 'Bert v1';
+  String selectedSummaryType = 'Short and Precise';
   double temperatureSliderValue = 0.8;
   double topPSliderValue = 0.9;
   double maxLengthSliderValue = 0.3;
   String? selectedPdfPath;
   List<Map<String, dynamic>> messages = [
-    {'sender': 'bot', 'text': 'Hi,Welcome to ChatBot'},
+    {'sender': 'bot', 'text': 'Hi, Welcome to Summarizer'},
     {'sender': 'bot', 'text': 'How can I help you?'}
   ];
 
@@ -42,6 +43,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     Map<String, dynamic> inputData = {
       "query_text": _controller.text,
       "model_name": selectedModel,
+      "summary_type": selectedSummaryType,
       "temperature": temperatureSliderValue,
       "top_p": topPSliderValue,
       "max_length": maxLengthSliderValue.toInt(), // Ensure this is cast to int
@@ -113,7 +115,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
           ),
         ],
         title: const Text(
-          'ChatBot',
+          'Summarizer',
           style: TextStyle(
             color: Colors.white,
             fontSize: 18,
@@ -138,7 +140,8 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => WelcomeScreen(), // Go back to the welcome screen
+                        builder: (context) =>
+                            WelcomeScreen(), // Go back to the welcome screen
                       ),
                     );
                   },
@@ -147,6 +150,46 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                   padding: EdgeInsets.all(05.0),
                   child: Text('Settings',
                       style: TextStyle(color: Colors.white, fontSize: 18)),
+                ),
+                ListTile(
+                  title: const Text('Select Type',
+                      style: TextStyle(
+                        color: Colors.white,
+                      )),
+                  trailing: DropdownButton<String>(
+                    value: selectedSummaryType,
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'Short and Precise',
+                        child: Text('Short and Precise',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Short and Accurate',
+                        child: Text('Short and Accurate',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Long and Detailed',
+                        child: Text('Long and Detailed',
+                            style: TextStyle(
+                              color: Colors.white,
+                            )),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedSummaryType = value!;
+                      });
+                    },
+                    hint: const Text('Select Type',
+                        style: TextStyle(color: Colors.white)),
+                    dropdownColor: Colors.grey[800],
+                  ),
                 ),
                 ListTile(
                   title: const Text('Select Model',
@@ -207,7 +250,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                     });
                   },
                 ),
-                const SizedBox(height:05),
+                const SizedBox(height: 05),
                 ListTile(
                   leading: const Icon(Icons.subscriptions, color: Colors.white),
                   title: const Text("Subscriptions",

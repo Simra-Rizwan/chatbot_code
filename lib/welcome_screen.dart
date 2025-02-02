@@ -1,4 +1,5 @@
 import 'package:custfyp/chatbot_screen.dart';
+import 'package:custfyp/summarizer_screen.dart';
 import 'package:flutter/material.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       'image': 'assets/images/chatbot.webp',
     },
     {
-      'title': 'Welcome to Summarize',
+      'title': 'Welcome to Summarizer',
       'image': 'assets/images/summarizer.webp',
     },
     {
@@ -104,6 +105,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ChatBotScreen(),
+                            ),
+                          );
+                        }
+
+                        if (item['title'] == 'Welcome to Summarizer') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SummarizerScreen(),
                             ),
                           );
                         }
