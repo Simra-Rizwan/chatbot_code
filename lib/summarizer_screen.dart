@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+
+import 'chatbot_screen.dart';
 
 class SummarizerScreen extends StatefulWidget {
   const SummarizerScreen({super.key});
@@ -28,6 +29,7 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
   double topPSliderValue = 0.9;
   double maxLengthSliderValue = 0.3;
   String? selectedPdfPath;
+  String? pdfName; // Variable to store the PDF name
   List<Map<String, dynamic>> messages = [
     {'sender': 'bot', 'text': 'Hi, Welcome to Summarizer'},
     {'sender': 'bot', 'text': 'How can I help you?'}
@@ -80,21 +82,6 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
     }
   }
 
-  Future<String?> uploadPdfToFirebase(File pickedFile) async {
-    try {
-      final fileName = pickedFile.uri.pathSegments.last;
-      final fileRef = FirebaseStorage.instance.ref().child('pdfs/$fileName');
-      final uploadTask = await fileRef.putFile(pickedFile);
-      final downloadUrl = await uploadTask.ref.getDownloadURL();
-      return downloadUrl; // Return the URL of the uploaded file
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to upload PDF: $e")),
-      );
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,9 +91,8 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.person, color: Colors.white), // Person icon
+            icon: const Icon(Icons.person, color: Colors.white),
             onPressed: () {
-              // Navigate to UserProfileScreen
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const UserProfile()),
@@ -122,27 +108,21 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true, // This will center the title in the AppBar
+        centerTitle: true,
       ),
       drawer: Drawer(
         child: Container(
           color: Colors.grey[900],
           child: Padding(
             padding: const EdgeInsets.only(top: 30.0),
-            //child: Padding(
-            //padding: const EdgeInsets.all(15.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pop(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            WelcomeScreen(), // Go back to the welcome screen
-                      ),
                     );
                   },
                 ),
@@ -298,7 +278,6 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
                   final message = messages[index];
-                  print("Message: ${message['text']}");
                   return Align(
                     alignment: message['sender'] == 'user'
                         ? Alignment.centerRight
@@ -340,7 +319,7 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: Text(
-                        'PDF: ${selectedPdfPath!.split('/').last}',
+                        'PDF: $pdfName', // Display the PDF name
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
@@ -349,32 +328,28 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
                     onPressed: () async {
                       final pickedFile = await _pickFile();
                       if (pickedFile != null) {
-                        final pdfUrl = await uploadPdfToFirebase(pickedFile);
                         setState(() {
                           selectedPdfPath = pickedFile.path;
+                          pdfName = pickedFile.path.split('/').last; // Store the file name
                         });
-                        if (pdfUrl != null) {
-                          sendEncodedPayload(
-                              pdfUrl); // Send the PDF URL to backend
-                        }
                       }
                     },
                   ),
                   Expanded(
                     child: TextField(
                       controller: _controller,
-                      decoration: const InputDecoration(
-                        hintText: 'Type your message here...',
-                        hintStyle: TextStyle(color: Colors.white),
-                        border: OutlineInputBorder(),
-                      ),
                       style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        hintText: 'Type your message...',
+                        hintStyle: TextStyle(color: Colors.white),
+                        border: InputBorder.none,
+                      ),
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.send, color: Colors.blue),
                     onPressed: () {
-                      sendEncodedPayload(null); // Send message without PDF
+                      sendEncodedPayload(selectedPdfPath);
                     },
                   ),
                 ],
@@ -387,7 +362,8 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
   }
 
   Future<File?> _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom, allowedExtensions: ['pdf']);
     if (result != null) {
       return File(result.files.single.path!);
     }
@@ -395,34 +371,3 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
   }
 }
 
-class SliderSetting extends StatelessWidget {
-  final String title;
-  final double value;
-  final ValueChanged<double> onChanged;
-
-  const SliderSetting({
-    required this.title,
-    required this.value,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(title, style: const TextStyle(color: Colors.white)),
-        ),
-        Slider(
-          value: value,
-          min: 0.0,
-          max: 1.0,
-          onChanged: onChanged,
-          activeColor: Colors.blue,
-        ),
-      ],
-    );
-  }
-}

@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:custfyp/services/dialog_service.dart';
 import 'package:custfyp/subsciption_screen.dart';
+import 'package:custfyp/summarizer_screen.dart';
 import 'package:custfyp/user_profile.dart';
 import 'package:custfyp/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class ChatBotScreen extends StatefulWidget {
   const ChatBotScreen({super.key});
@@ -27,6 +27,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   double topPSliderValue = 0.9;
   double maxLengthSliderValue = 0.3;
   String? selectedPdfPath;
+  String? selectedPdfName;  // Variable to store the PDF name
   List<Map<String, dynamic>> messages = [
     {'sender': 'bot', 'text': 'Hi,Welcome to ChatBot'},
     {'sender': 'bot', 'text': 'How can I help you?'}
@@ -34,9 +35,9 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
 
   Future<void> sendEncodedPayload(String? pdfUrl) async {
     setState(() {
-      messages
-          .add({'sender': 'user', 'text': _controller.text, 'file': pdfUrl});
+      messages.add({'sender': 'user', 'text': _controller.text, 'file': pdfUrl});
       selectedPdfPath = null;
+      selectedPdfName = null;  // Reset the file name after sending the message
     });
 
     Map<String, dynamic> inputData = {
@@ -78,21 +79,6 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     }
   }
 
-  Future<String?> uploadPdfToFirebase(File pickedFile) async {
-    try {
-      final fileName = pickedFile.uri.pathSegments.last;
-      final fileRef = FirebaseStorage.instance.ref().child('pdfs/$fileName');
-      final uploadTask = await fileRef.putFile(pickedFile);
-      final downloadUrl = await uploadTask.ref.getDownloadURL();
-      return downloadUrl; // Return the URL of the uploaded file
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to upload PDF: $e")),
-      );
-      return null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,19 +113,14 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
           color: Colors.grey[900],
           child: Padding(
             padding: const EdgeInsets.only(top: 30.0),
-            //child: Padding(
-            //padding: const EdgeInsets.all(15.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pop(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => WelcomeScreen(), // Go back to the welcome screen
-                      ),
                     );
                   },
                 ),
@@ -207,7 +188,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                     });
                   },
                 ),
-                const SizedBox(height:05),
+                const SizedBox(height: 5),
                 ListTile(
                   leading: const Icon(Icons.subscriptions, color: Colors.white),
                   title: const Text("Subscriptions",
@@ -297,7 +278,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: Text(
-                        'PDF: ${selectedPdfPath!.split('/').last}',
+                        'PDF: ${selectedPdfName}', // Display the PDF name
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
@@ -306,14 +287,11 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                     onPressed: () async {
                       final pickedFile = await _pickFile();
                       if (pickedFile != null) {
-                        final pdfUrl = await uploadPdfToFirebase(pickedFile);
                         setState(() {
                           selectedPdfPath = pickedFile.path;
+                          selectedPdfName = pickedFile.path.split('/').last; // Extract and store the PDF name
                         });
-                        if (pdfUrl != null) {
-                          sendEncodedPayload(
-                              pdfUrl); // Send the PDF URL to backend
-                        }
+                        sendEncodedPayload(null); // Send message without PDF
                       }
                     },
                   ),
@@ -358,28 +336,25 @@ class SliderSetting extends StatelessWidget {
   final ValueChanged<double> onChanged;
 
   const SliderSetting({
+    Key? key,
     required this.title,
     required this.value,
     required this.onChanged,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(title, style: const TextStyle(color: Colors.white)),
-        ),
-        Slider(
-          value: value,
-          min: 0.0,
-          max: 1.0,
-          onChanged: onChanged,
-          activeColor: Colors.blue,
-        ),
-      ],
+    return ListTile(
+      title: Text(
+        title,
+        style: const TextStyle(color: Colors.white),
+      ),
+      subtitle: Slider(
+        value: value,
+        min: 0.0,
+        max: 1.0,
+        onChanged: onChanged,
+      ),
     );
   }
 }
