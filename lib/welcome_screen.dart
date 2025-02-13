@@ -1,4 +1,5 @@
 import 'package:custfyp/chatbot_screen.dart';
+import 'package:custfyp/quizmaker_screen.dart';
 import 'package:custfyp/summarizer_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -57,7 +58,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(top: 50.0), // Add top padding here
+                  padding:
+                      const EdgeInsets.only(top: 50.0), // Add top padding here
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -114,6 +116,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => SummarizerScreen(),
+                            ),
+                          );
+                        }
+                        if (item['title'] == 'Quiz Maker') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => QuizMakerScreen(),
                             ),
                           );
                         }

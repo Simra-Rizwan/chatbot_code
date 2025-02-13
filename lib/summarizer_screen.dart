@@ -250,8 +250,10 @@ class _SummarizerScreenState extends State<SummarizerScreen> {
                   onTap: () {
                     setState(() {
                       messages.clear();
-                      messages.add(
-                          {'sender': 'bot', 'text': 'Hi, how can I help you?'});
+                      messages.addAll([
+                      {'sender': 'bot', 'text': 'Hi, Welcome to Summarizer'},
+                      {'sender': 'bot', 'text': 'How can I help you?'}
+                      ]);
                     });
                     Navigator.pop(context); // Close the drawer after clearing
                   },

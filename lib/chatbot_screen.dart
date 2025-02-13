@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:custfyp/services/dialog_service.dart';
 import 'package:custfyp/subsciption_screen.dart';
-import 'package:custfyp/summarizer_screen.dart';
 import 'package:custfyp/user_profile.dart';
-import 'package:custfyp/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -208,8 +206,10 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                   onTap: () {
                     setState(() {
                       messages.clear();
-                      messages.add(
-                          {'sender': 'bot', 'text': 'Hi, how can I help you?'});
+                      messages.addAll([
+                        {'sender': 'bot', 'text': 'Hi,Welcome to ChatBot'},
+                        {'sender': 'bot', 'text': 'How can I help you?'}
+                      ]);
                     });
                     Navigator.pop(context); // Close the drawer after clearing
                   },
